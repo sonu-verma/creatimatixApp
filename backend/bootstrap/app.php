@@ -4,10 +4,12 @@ use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-
+use Illuminate\Http\Middleware\HandleCors;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+
+// $app->handleCors();
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,8 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Define middleware groups manually (similar to previous Kernel.php)
         $middleware->group('api', [
             EnsureFrontendRequestsAreStateful::class,
-            ThrottleRequests::class . ':api',
+            // ThrottleRequests::class . ':api',
             SubstituteBindings::class,
+            HandleCors::class
         ]);
 
         $middleware->alias([
