@@ -1,0 +1,75 @@
+.card-header-flex{
+    display: flex;
+    justify-content: space-between;
+}
+
+.turfBooking, .sportRegister, .turfImages{
+    padding: 20px;
+    background: white;
+    border: 1px solid #e2d9d9;
+    border-top: none;
+}
+
+.radio-flex{
+    display: flex;
+    gap: 40px;
+    margin-top: 5px;
+}
+
+.turf-btns{
+    display: flex;
+    justify-content: right;
+    gap: 9px;
+    flex-direction: row-reverse;
+}
+
+.error {
+    color: rgb(143, 54, 54);
+}
+
+.img-thumbnail{
+    width: 80%;
+    height: 70%;
+}
+
+#packageImages{
+    margin: auto;
+    max-width: 1115px;
+    margin-top: 12px;
+}
+
+.p-b-10 {
+    padding-bottom: 13px;
+}
+
+.p-t-10 {
+    padding-top: 10px;
+}
+
+.turf_img{
+    height: 175px;
+    border-bottom: 1px solid #dad5d5;
+}
+
+.uploadedImages  .input-group{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.turf_img_div_2{
+    display: flex;
+    align-items: center;
+}
+
+.sportList{
+    margin-bottom: 15px;
+    border-bottom: 2px solid #dad5d5;
+}
+
+
+
+
+.cancelSportEdit{
+    display: none;
+}

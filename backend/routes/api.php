@@ -1,18 +1,34 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TeamController;
+use App\Http\Controllers\Api\TurfController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::options('{any}', function (Request $request) {
-    return response()->json('Preflight OK', 200, [
-        'Access-Control-Allow-Origin' => 'http://localhost:1234/',
-        'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With',
-        'Access-Control-Allow-Credentials' => 'true',
-    ]);
-})->where('any', '.*');
 
+Route::controller(AuthController::class)->group(function(){
+    Route::post('register', 'register');
+    Route::post('login', 'login');
+
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::get('logout', 'logout');
+        Route::get("user",  'user');
+        Route::post("user-update",  'updateUser');
+    });
+});
+
+
+Route::controller(TeamController::class)->group(function(){
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::get('teams', 'index');
+        Route::get('team/edit/{id}', 'show');
+        Route::post('team/create', 'store');
+        Route::post('team/update/{id}', 'update');
+    });
+});
+
+/*
 Route::post('/register', [AuthController::class, 'register']);
 Route::post("/login", [AuthController::class, 'login'])->name('login');
 Route::post("/sent-otp", [AuthController::class,'sentOtp'])->name('login.otp');
@@ -22,7 +38,12 @@ Route::post("/verify-top", [AuthController::class, 'verifyOtp'])->name('login.ve
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::get('turfs', [TurfController::class, 'availableTurfs']);
+
+Route::get("/user", [AuthController::class, 'user']);
+Route::post("/user/update", [AuthController::class, 'updateUser']);
+
+Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
@@ -48,4 +69,6 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 });
+
+*/
 

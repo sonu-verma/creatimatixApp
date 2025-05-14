@@ -17,7 +17,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'phone', 'password', 'role'];
+    protected $fillable = ['name', 'email', 'phone', 'password', 'role', 'api_token','profile', 'short_desc'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -42,6 +42,16 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Accessor to get the full path of the profile image.
+     *
+     * @return string|null
+     */
+    public function getProfileAttribute($value)
+    {
+        return $value ? url('storage/profile_images/' . $value) : null;
+    }
+
 
     public function isAdmin(){
        return $this->role === 'admin';
@@ -55,3 +65,5 @@ class User extends Authenticatable
         return $this->role === 'user';
     }
 }
+
+
