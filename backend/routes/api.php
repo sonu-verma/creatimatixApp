@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\TeamConnectionController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TurfController;
 use Illuminate\Http\Request;
@@ -25,8 +27,39 @@ Route::controller(TeamController::class)->group(function(){
         Route::get('team/edit/{id}', 'show');
         Route::post('team/create', 'store');
         Route::post('team/update/{id}', 'update');
+        Route::post('connections', 'userTeamConnection');
+    });
+
+});
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/teams/{team}/request-connection', [TeamConnectionController::class, 'sendRequest']);
+    Route::post('/connections/{id}/accept', [TeamConnectionController::class, 'accept']);
+    Route::post('/connections/{id}/reject', [TeamConnectionController::class, 'reject']);
+    Route::post('/my-connections', [TeamConnectionController::class, 'myConnections']);
+    Route::post('/my-requests', [TeamConnectionController::class, 'myRequests']);
+});
+
+
+
+Route::controller(TurfController::class)->group(function(){
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::get('turfs', 'availableTurfs');
+        Route::get('turf/{slug}',  'getTurf');
     });
 });
+
+
+Route::controller(CheckoutController::class)->group(function(){
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::post('checkout', 'bookTurf');
+    });
+});
+
+
+
+
 
 /*
 Route::post('/register', [AuthController::class, 'register']);

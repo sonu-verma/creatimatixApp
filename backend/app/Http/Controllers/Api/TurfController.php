@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Turf;
 use Illuminate\Http\Request;
@@ -15,5 +16,15 @@ class TurfController extends Controller
             "statusCode" => Response::HTTP_OK,
             "turfs" => $turfs
         ]);
+    }
+    public function getTurf(Request $request, $slug = null){
+        // $slug = $request->get('slug', null);
+        $turf = Turf::where("status", 1)->where('slug', $slug)->with('sports')->first();
+        
+        if(!$turf){
+            return ResponseHelper::error(status: 'error', message: 'Turf not available, please contact admin.');
+        }
+        return ResponseHelper::success(status: 'success', message: "Data loaded", data: $turf);
+     
     }
 }

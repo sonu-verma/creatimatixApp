@@ -64,6 +64,23 @@ class User extends Authenticatable
     public function isUser(){
         return $this->role === 'user';
     }
+
+
+    public function teams(){
+        return $this->hasMany(Team::class, 'id_user');
+    }
+
+    public function acceptedConnections()
+    {
+        return $this->hasMany(TeamUserConnection::class, 'id_user', 'id')
+            ->where('status', 'accepted');
+    }
+
+    public function pendingOrRejectedRequests()
+    {
+        return $this->hasMany(TeamUserConnection::class, 'id_user', 'id')
+            ->whereIn('status', ['pending', 'rejected']);
+    }
 }
 
 
