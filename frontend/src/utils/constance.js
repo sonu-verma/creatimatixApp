@@ -1,6 +1,6 @@
 // export const assetPath = (path) => `./../../public/assets/${path}`;
 export const assetPath = (path) => `/assets/images/${path}`;
-
+export const apiURL = "http://127.0.0.1:8000/api/"
 export const sportIcons = { "Football" :"https://hudle.in/icons/Football.svg",
                             "Cricket" :"https://media.hudle.in/sports/24/photo",
                             "Badminton" :"https://media.hudle.in/sports/2/photo?v=1521504185",

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
+import { apiURL } from '../../utils/constance';
 
 const Login = () => {
 
@@ -25,7 +26,7 @@ const Login = () => {
                 return;
             }
             try {
-                const response = await axios.post("http://127.0.0.1:8000/api/login", {
+                const response = await axios.post(apiURL+"login", {
                     email: username,
                     password: password,
                 }, {
@@ -57,14 +58,22 @@ const Login = () => {
     }
 
     return (
-        <div>
-            <div className="text-center">
+        <div className="absolute text-center w-screen">
+            <div className="text-center w-2/4 mb-5 mx-auto">
                 <h2 className="text-4xl text-center mt-20 my-5">Login</h2>
-                <input className="border-2 p-2 mr-2" type="email" placeholder="Email" onChange={(e) => setUsername(e.target.value)} />
-                <input className="border-2 p-2 mr-2" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-                <button className="px-6 py-2 border-2  text-black hover:bg-orange-300" onClick={handleLogin}>Login</button>
+                <div className="flex justify-center items-center gap-4 mb-5">
+                    <label>Username:</label>
+                    <input className="border-2 p-2 mr-2 w-2/4" name="email" id="email" type="email" placeholder="Email" onChange={(e) => setUsername(e.target.value)} />
+                </div>
+                <div className="flex justify-center items-center gap-4 mb-5">
+                    <label>Password:</label>
+                    <input className="border-2 p-2 mr-2 w-2/4" name="password" id="password" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+                </div>
+                <div className="relative right-0">
+                    <button className="px-6 py-2 border-2 w-1/4 text-black hover:bg-orange-300 ml-[274px]" onClick={handleLogin}>Login</button>
+                </div>
             </div>
-            { error && <div className="text-red-400">{error}</div> }
+            { error && <div className="text-red-400 w-3/4 text-end ml-10">{error}</div> }
         </div>
       );
 }

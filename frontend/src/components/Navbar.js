@@ -7,9 +7,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isMenuActive, setIsMenuActive] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
-    setIsLoggedIn(localStorage.getItem('token') ? true: false)
+    setIsLoggedIn( localStorage.getItem('token')? true: false)
   },[navigate]);
   
   return (
@@ -36,7 +38,7 @@ const Navbar = () => {
             </div>
          
           <div className="hidden md:flex space-x-4">
-              <div className="relative ml-28" >
+              <div className="relative ml-30" >
                   <input type="text" className="w-[529px] p-3 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="find your turf..." />
                   <button className="absolute right-0.5 top-0.5 rounded bg-slate-800 p-3 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
@@ -47,10 +49,9 @@ const Navbar = () => {
           </div>
           <div className="flex absolute items-center right-16 space-x-4">
             {
-              isLoggedIn ? <Link to={'logout'} className="block text-gray-800 hover:text-blue-500 text-sm font-medium">
-              Logout
-            </Link> : <Link to={'login'} className="block text-gray-800 hover:text-blue-500 text-sm font-medium">
-              Login
+              !isLoggedIn && 
+              <Link to={'login'} className="block text-gray-800 hover:text-blue-500 text-sm font-medium invisible  md:visible">
+                Login
             </Link>
             }
             
@@ -60,6 +61,28 @@ const Navbar = () => {
                 3
               </span>
             </button>
+            {
+              isLoggedIn && 
+                ( 
+                <div>
+                  <div className="flex gap-2 border-2 border-black p-1 rounded-md" onClick={ () => setIsMenuActive(!isMenuActive)}>
+                    { user && user.name} <span className="text-black-300 border-l-2 px-1 border-l-gray-500 hover:text-red-500">v</span>
+                  </div>
+                  {isMenuActive && 
+                  <div className="absolute bg-gray-400 rounded-b-md w-[126px] z-10">
+                      <Link to={'logout'} className="py-2 text-white text-left bg-black block text-gray-800 hover:bg-slate-500 text-sm font-medium">
+                        Logout
+                      </Link> 
+                      <Link to={'logout'} className="py-2 text-white text-left bg-black block text-gray-800 hover:bg-slate-500 text-sm font-medium">
+                        Manage Turf
+                      </Link> 
+                    </div>
+                  }
+                </div>
+
+                )
+              
+            }
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-2 rounded-md focus:outline-none"
@@ -107,11 +130,13 @@ const Navbar = () => {
           {
               isLoggedIn ? <Link to={'/logout'} className="block text-gray-800 hover:text-blue-500 text-sm font-medium">
               Logout
-            </Link> : <Link to={'/login'} className="block text-gray-800 hover:text-blue-500 text-sm font-medium">
+            </Link> : 
+            <Link to={'/login'} className="block text-gray-800 hover:text-blue-500 text-sm font-medium">
               Login
             </Link>
             }
           </div>
+        
         </div>
       )}
     </nav>
