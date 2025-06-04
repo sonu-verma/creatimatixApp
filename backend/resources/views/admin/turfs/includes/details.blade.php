@@ -1,7 +1,7 @@
 <div class="turfBooking">
     <form method="POST" action="{{ route('turf.store.basic') }}" id="frmDetails">
         @csrf
-        <input type="hidden" name="id" id="packageId" value="{{ old('name', $model?->id) }}"
+        <input type="hidden" name="id" id="packageId" value="{{ old('id', $model?->id) }}"
             class="form-control packageId">
         <div class="row mb-3">
             <div class="col-md-6">
