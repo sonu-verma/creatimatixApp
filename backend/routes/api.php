@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\TeamConnectionController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TurfController;
@@ -51,8 +52,21 @@ Route::controller(TurfController::class)->group(function(){
 });
 
 
+
+Route::controller(PostController::class)->group(function(){
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::get('posts', 'index');
+        Route::post('post/create', 'store');
+    });
+});
+
+
 Route::controller(CheckoutController::class)->group(function(){
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('checkout', 'bookTurf');
     });
 });
+
+
+
+
