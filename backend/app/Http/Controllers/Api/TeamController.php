@@ -162,7 +162,7 @@ class TeamController extends Controller
 
 
     public function userTeamConnection(Request $request){
-        $idUser = $request->get('id_user', null);
+        $idUser = Auth::user()->id;
         // dd($request->header());
         $teams =new Team();
         if($idUser){

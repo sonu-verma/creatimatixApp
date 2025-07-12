@@ -24,12 +24,21 @@ class AuthController extends Controller
     {
            
        try{
+
+            $request->validated([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'phone' => 'required|string|max:15|unique:users,phone',
+                'password' => 'required|string|min:8|confirmed',
+                'profile' => 'nullable|file|mimes:jpg,jpeg,png|max:20480'
+            ]);
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
-                'role' => $request->role,
+                'role' => $request->get("role", 'user'), // Default role is 'user'
             ]);
 
             if($request->hasFile('profile')){
@@ -39,7 +48,13 @@ class AuthController extends Controller
             }
 
             if($user){
-                return ResponseHelper::success(message: 'User registered successfully', data: $user, statusCode: 201);
+                 $token = $user->createToken('auth_token')->plainTextToken;
+                return response()->json([
+                    "message" =>'User registered successfully', 
+                    "data" => $user, 
+                    "statusCode" => 201, 
+                    "token" => $token
+                ]);
             }
        }catch(Exception $e){
             return ResponseHelper::error(message: 'Unable to register!, please try again, '.$e->getMessage(), statusCode: 400);
@@ -190,7 +205,7 @@ class AuthController extends Controller
             return ResponseHelper::success(
                 statusCode: Response::HTTP_OK,
                 message: 'User updated successfully',
-                data: []
+                data: $user
             );
 
         } catch(Exception $e){

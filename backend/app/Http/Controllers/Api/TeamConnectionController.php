@@ -71,8 +71,12 @@ class TeamConnectionController extends Controller
 
     public function myRequests()
     {
-        $data = auth()->user()->pendingOrRejectedRequests()->with('team')->get();
-        return ResponseHelper::success(status: "success", message: 'Request sent successfully.', statusCode: 200, data: $data);
+        $user = auth()->user();
+        $teams = Team::where('id_user', $user->id)->pluck('id');
+        $myrequests = TeamUserConnection::whereIn('id_team', $teams)->with('team')->where('status', 'pending')->orderBy("id", 'desc')->get();
+        // dd($myrequests);
+        // $data = auth()->user()->pendingOrRejectedRequests()->with('team')->get();
+        return ResponseHelper::success(status: "success", message: 'Request sent successfully.', statusCode: 200, data: $myrequests);
          
     }
 }

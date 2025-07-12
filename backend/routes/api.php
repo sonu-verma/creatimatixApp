@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\TeamConnectionController;
 use App\Http\Controllers\Api\TeamController;
@@ -40,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/connections/{id}/reject', [TeamConnectionController::class, 'reject']);
     Route::post('/my-connections', [TeamConnectionController::class, 'myConnections']);
     Route::post('/my-requests', [TeamConnectionController::class, 'myRequests']);
+    Route::post('/posts/{postId}/like', [LikeController::class, 'likeToggle']);
 });
 
 
@@ -56,7 +58,10 @@ Route::controller(TurfController::class)->group(function(){
 Route::controller(PostController::class)->group(function(){
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('posts', 'index');
+        Route::get('post/{id}', 'show');
         Route::post('post/create', 'store');
+        Route::get('post/edit/{id}', 'edit');
+        Route::post('post/update/{id}', 'update');
     });
 });
 

@@ -78,8 +78,12 @@ class User extends Authenticatable
 
     public function pendingOrRejectedRequests()
     {
-        return $this->hasMany(TeamUserConnection::class, 'id_user', 'id')
+        return $this->hasMany(TeamUserConnection::class, 'id_user', 'id')->with('teams')
             ->whereIn('status', ['pending', 'rejected']);
+    }
+
+    public function likesByPost(){
+        return $this->belongsToMany(User::class, 'likes', 'id_user','id_post')->withTimestamps();
     }
 }
 

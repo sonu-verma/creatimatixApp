@@ -32,7 +32,7 @@ class RegisterRequest extends FormRequest
             "email" => "required|email|unique:users,email",
             "phone" => "required|unique:users,phone",
             "password" => "required",
-            "role" => "required",
+            "role" => "nullable",
             "gender" => "required",
             "profile" => "nullable|image|mimes:jpeg,png,jpg,gif|max:2048",
             "short_desc" => "nullable|string",
