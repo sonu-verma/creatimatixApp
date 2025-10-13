@@ -15,6 +15,10 @@ Route::controller(AuthController::class)->group(function(){
     Route::post('register', 'register');
     Route::post('login', 'login');
 
+    Route::post('auth/request-otp',  'requestOtp');
+    Route::post('auth/verify-otp',  'verifyOtp');
+
+
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('logout', 'logout');
         Route::get("user",  'user');

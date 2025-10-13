@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Models\Otp;
 use App\Models\User;
+use App\Notifications\SendOtpNotification;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -15,7 +18,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
+use Str;
 
 class AuthController extends Controller
 {
@@ -97,42 +102,90 @@ class AuthController extends Controller
        
     }
 
-    public function sentOtp(Request $request){
+    public function requestOtp(Request $request){
         $request->validate([
-            "phone" => "required"
+            "phone" => "required|string"
         ]);
 
-        $otp = rand(100000, 999999);
-        Cache::put('otp_'. $request->phone, $otp, now()->addMinutes((5)));
+       
+        $phone  = $request->phone;
+        $recent = Otp::where('phone', $phone)->latest()->first();
+        if($recent && $recent->created_at->diffInSeconds(now()) < 60 ){
+            return response()->json([
+                'message' => 'Please wait before requesting a new OTP.'
+            ], 429);
+        }
 
-        // Example: Send OTP via SMS (use Twilio, Firebase, or an SMS API)
-        // Http::post('https://smsprovider.com/send', ['phone' => $request->phone, 'otp' => $otp]);
+        // Generate OTP
+        
+        $otpPlain = random_int(100000, 999999);
+        $otpHash = Hash::make((string)$otpPlain);
 
+        Otp::create([
+            'phone' => $phone,
+            'otp_hash' => $otpHash,
+            'expires_at' => now()->addMinutes(5)
+        ]);
+
+        $notifiable = (object)['mail' => $phone];
+
+        // Notification::send($notifiable, new SendOtpNotification($otpPlain));
+        Notification::route('mail', $phone)->notify(new SendOtpNotification($otpPlain));
 
         return response()->json([
             'message' => 'OTP Sent!',
-            'otp' => $otp
+            'otp' => $otpPlain
         ]);
     }
 
 
     public function verifyOtp(Request $request){
         $phone = $request->phone;
+        $otp = $request->otp;
         $request->validate([
             "phone" => "required",
-            "otp" => "required|numeric|min:6|max:6"
+            "otp" => "required|numeric|min:6"
         ]);
 
-        if(Cache::get("otp_".$phone) != $request->otp){
-            return response()->json(['error' => 'Invalid OTP.'], 401);
+        $otpRecord  = Otp::where('phone', '=',$phone)->latest()->first();
+        // $query = vsprintf(str_replace(array('?'), array('\'%s\''), $otpRecord->toSql()), $otpRecord->getBindings());
+        if(!$otpRecord){
+            return response()->json(['message' => 'OTP not found, please request a new.'], 404);
         }
 
-        Cache::forget("otp_".$phone);
+        // check expiry
+        if(Carbon::now()->greaterThan($otpRecord->expires_at)){
+            return response()->json(['message' => 'OTP expired, request a new one.'], 410);
+        }
 
-        $user = User::firstOrCreate(['phone' => $phone]);
+        // check attempts
+        if($otpRecord->attempts >= 5){
+            return response()->json(['message' => 'OTP expired, request a new one.'],429);
+        }
+
+        // verify hashed OTP
+        if(!Hash::check($otp, $otpRecord->otp_hash)){
+            $otpRecord->increment('attempts');
+            return response()->json(['message' => 'Invalid OTP.'], 401);
+        }
+
+        $otpRecord->delete();
+
+
+        $user = User::firstOrCreate(['phone' => $phone], [
+            'name' =>  'User '. substr($phone, -4),
+            'phone' => $request->phone,
+            'email' => $request->phone,
+            'password' => bcrypt(\Str::random(16))
+        ]);
+
+        //create token
+
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'token' => $user->createToken('auth_token')->plainTextToken,
+            'message' => 'Authenticated',
+            'token' => $token,
             'user' => $user
         ]);
     }
