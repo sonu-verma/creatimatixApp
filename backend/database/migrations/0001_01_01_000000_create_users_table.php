@@ -20,9 +20,15 @@ return new class extends Migration
             $table->string('password');
             $table->string('api_token')->nullable()->unique();
             $table->string('role')->default('user');
-            $table->string('gender')->nullable();
             $table->string('profile')->nullable();
             $table->text('short_desc')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('dob')->nullable();
+            $table->string('primary_sport_preference')->nullable();
+            $table->text('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('zipcode')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

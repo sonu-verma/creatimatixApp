@@ -47,10 +47,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 Route::controller(TurfController::class)->group(function(){
-    Route::group(['middleware' => 'auth:sanctum'], function () {
+    // Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('turfs', 'availableTurfs');
         Route::get('turf/{slug}',  'getTurf');
-    });
+    // });
 });
 
 

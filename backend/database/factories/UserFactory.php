@@ -29,6 +29,7 @@ class UserFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'short_desc' => fake()->paragraph(),
             'gender' => fake()->randomElement(['male', 'female', 'other']),
+            'primary_sport_preference' => fake()->randomElement(['football', 'cricket', 'tennis','badminton' ,'karate']),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),

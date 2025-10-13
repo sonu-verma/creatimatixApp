@@ -2,6 +2,7 @@
 
 return [
 
+
     /*
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
@@ -19,7 +20,7 @@ return [
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 
-    'allowed_origins' => ['http://localhost:5173','http://localhost:5174'], // ✅ Allow ONLY your frontend
+    'allowed_origins' => ['http://localhost:3000','http://localhost:5173'], // ✅ Allow ONLY your frontend
 
     'allowed_origins_patterns' => [],
 

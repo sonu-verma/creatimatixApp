@@ -21,8 +21,8 @@ class AuthController extends Controller
 {
 
     public function register(RegisterRequest $request)
-    {
-           
+    {          
+
        try{
 
             $request->validated([
@@ -30,28 +30,35 @@ class AuthController extends Controller
                 'email' => 'required|email|unique:users,email',
                 'phone' => 'required|string|max:15|unique:users,phone',
                 'password' => 'required|string|min:8|confirmed',
-                'profile' => 'nullable|file|mimes:jpg,jpeg,png|max:20480'
+                'gender' => 'required',
+                // 'profile' => 'nullable|file|mimes:jpg,jpeg,png|max:20480'
             ]);
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
+                'gender' => $request->gender,
                 'password' => Hash::make($request->password),
-                'role' => $request->get("role", 'user'), // Default role is 'user'
+                'role' => $request->get("role", 'user'),
+                'primary_sport_preference' => $request->get("preference"),
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'zipcode' => $request->zipCode,
             ]);
 
-            if($request->hasFile('profile')){
-                $imagePath = $request->file('profile')->store('profile_images', 'public');
-                $user->profile = $imagePath;
-                $user->save();
-            }
+            // if($request->hasFile('profile')){
+            //     $imagePath = $request->file('profile')->store('profile_images', 'public');
+            //     $user->profile = $imagePath;
+            //     $user->save();
+            // }
 
             if($user){
                  $token = $user->createToken('auth_token')->plainTextToken;
                 return response()->json([
                     "message" =>'User registered successfully', 
-                    "data" => $user, 
+                    "user" => $user, 
                     "statusCode" => 201, 
                     "token" => $token
                 ]);
@@ -199,7 +206,13 @@ class AuthController extends Controller
             }
             $user->name = $request->name;
             $user->gender = $request->gender;
+            $user->address = $request->address;
+            $user->city = $request->city;
+            $user->state = $request->state;
+            $user->zipcode = $request->zipcode;
             $user->short_desc = $request->short_desc;
+            $user->dob = $request->date_of_birth;
+            $user->primary_sport_preference = $request->primary_sport_preference;
             $user->save();
 
             return ResponseHelper::success(
