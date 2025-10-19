@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\LikeController;
+use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\TeamConnectionController;
 use App\Http\Controllers\Api\TeamController;
@@ -46,15 +47,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/my-connections', [TeamConnectionController::class, 'myConnections']);
     Route::post('/my-requests', [TeamConnectionController::class, 'myRequests']);
     Route::post('/posts/{postId}/like', [LikeController::class, 'likeToggle']);
+    // Events
+    Route::get('events/{id}', [EventController::class, 'show']);
+    Route::post("events", [EventController::class, 'store']);
+    Route::post('events/{id}', [EventController::class, 'update']);
+    Route::delete('events/{id}', [EventController::class, 'destroy']);
 });
 
 
 
 Route::controller(TurfController::class)->group(function(){
-    // Route::group(['middleware' => 'auth:sanctum'], function () {
-        Route::get('turfs', 'availableTurfs');
-        Route::get('turf/{slug}',  'getTurf');
-    // });
+    Route::get('turfs', 'availableTurfs');
+    Route::get('turf/{slug}',  'getTurf');
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::post('turf/store',  'storeTurf');
+        Route::get('turfs/nearby',  'getNearByTurf');
+    });
 });
 
 
@@ -76,6 +84,8 @@ Route::controller(CheckoutController::class)->group(function(){
     });
 });
 
+
+Route::get('events', action: [EventController::class, 'index']);
 
 
 

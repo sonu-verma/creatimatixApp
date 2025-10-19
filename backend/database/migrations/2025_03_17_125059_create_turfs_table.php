@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->decimal('rating', 2, 1)->default(0);
             $table->string('timing')->nullable();
+            $table->string('pricing')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
             $table->integer('status');

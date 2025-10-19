@@ -66,7 +66,7 @@ class TurfController extends Controller
 
         $turfStore = false;
         $isRedirect = true;
-         $request->validate([
+        $request->validate([
             'name' => 'required|string',
             'slug' => 'required|string|unique:turfs,slug,' . $request->id,
             'location' => 'required|string',
@@ -96,14 +96,14 @@ class TurfController extends Controller
             $isRedirect = false;
         } else {
             $turf = new Turf();
-            
         }
 
         $turf->name = $request->name;
         $turf->slug = $request->slug;
         $turf->location = $request->location;
         $turf->address = $request->address;
-        $turf->timing = $request->timing;
+        $turf->timing = $request->timing; 
+        $turf->pricing = $request->pricing; 
         $turf->description = $request->description;
         $turf->features = $request->features;
         $turf->benefits = $request->benefits;

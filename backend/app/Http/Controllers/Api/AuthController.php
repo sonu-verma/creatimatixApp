@@ -109,6 +109,13 @@ class AuthController extends Controller
 
        
         $phone  = $request->phone;
+
+        $user = User::where('phone', $phone)->first();
+
+        if(!$user){
+            return response()->json(['message' => 'User is not available, Please register first.'], 404);
+        }
+
         $recent = Otp::where('phone', $phone)->latest()->first();
         if($recent && $recent->created_at->diffInSeconds(now()) < 60 ){
             return response()->json([
@@ -179,6 +186,12 @@ class AuthController extends Controller
             'password' => bcrypt(\Str::random(16))
         ]);
 
+        // $user = User::where('phone', $phone)->first();
+
+        // if(!$user){
+        //     return response()->json(['message' => 'User is not register with system.'], 404);
+        // }
+
         //create token
 
         $token = $user->createToken('api-token')->plainTextToken;
@@ -234,11 +247,6 @@ class AuthController extends Controller
 
     public function updateUser(Request $request)
     {
-
-        Log::info('All request data:', $request->all());
-        Log::info('Has file profile: ' . ($request->hasFile('profile') ? 'yes' : 'no'));
-
-
        try {
         
             $isLoggedIn = Auth::user();
@@ -258,6 +266,7 @@ class AuthController extends Controller
                 $user->profile = $filename; 
             }
             $user->name = $request->name;
+            $user->email = $request->email;
             $user->gender = $request->gender;
             $user->address = $request->address;
             $user->city = $request->city;
