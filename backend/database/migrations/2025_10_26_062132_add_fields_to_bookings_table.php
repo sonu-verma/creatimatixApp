@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sport_types', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug');
-            $table->string('icon');
-            $table->integer('status')->default(1);
-            $table->timestamps();
+        Schema::table('bookings', function (Blueprint $table) {
+            //
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sport_types');
+        Schema::table('bookings', function (Blueprint $table) {
+            //
+        });
     }
 };

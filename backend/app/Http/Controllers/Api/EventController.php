@@ -7,14 +7,30 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EventStoreRequest;
 use App\Http\Requests\EventUpdateRequest;
 use App\Models\Event;
+use App\Services\EventStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class EventController extends Controller
 {
+    protected $eventStatusService;
+
+    public function __construct(EventStatusService $eventStatusService)
+    {
+        $this->eventStatusService = $eventStatusService;
+    }
+
     public function index(Request $request)
     {
-        $events = Event::orderBy('id', 'desc')->paginate(10);
+        $status = $request->get('status');
+        $perPage = $request->get('per_page', 10);
+
+        if ($status) {
+            $events = $this->eventStatusService->getEventsByStatus($status, $perPage);
+        } else {
+            $events = $this->eventStatusService->getEventsWithStatus($perPage);
+        }
+
         return response()->json([
             'statusCode' => Response::HTTP_OK,
             'events' => $events,
@@ -117,6 +133,114 @@ class EventController extends Controller
         }
         $event->delete();
         return ResponseHelper::success(message: 'Event deleted successfully!', data: null, statusCode: Response::HTTP_OK);
+    }
+
+    /**
+     * Get events by status
+     */
+    public function getEventsByStatus(Request $request, $status)
+    {
+        $perPage = $request->get('per_page', 10);
+        $events = $this->eventStatusService->getEventsByStatus($status, $perPage);
+        
+        return ResponseHelper::success(
+            message: "Events with status '{$status}' retrieved successfully",
+            data: $events,
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    /**
+     * Get upcoming events
+     */
+    public function getUpcomingEvents(Request $request)
+    {
+        try {
+            $days = $request->get('days', 7);
+            $perPage = $request->get('per_page', 10);
+            
+            $events = $this->eventStatusService->getUpcomingEvents($days, $perPage);
+            
+            return ResponseHelper::success(
+                message: "Upcoming events for next {$days} days retrieved successfully",
+                data: $events,
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return ResponseHelper::error(
+                message: "Error retrieving upcoming events: " . $e->getMessage(),
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Get today's events
+     */
+    public function getTodayEvents(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $events = $this->eventStatusService->getTodayEvents($perPage);
+        
+        return ResponseHelper::success(
+            message: "Today's events retrieved successfully",
+            data: $events,
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    /**
+     * Get events by date range
+     */
+    public function getEventsByDateRange(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date'
+        ]);
+
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $perPage = $request->get('per_page', 10);
+        
+        $events = $this->eventStatusService->getEventsByDateRange($startDate, $endDate, $perPage);
+        
+        return ResponseHelper::success(
+            message: "Events for date range retrieved successfully",
+            data: $events,
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    /**
+     * Get event statistics
+     */
+    public function getEventStatistics()
+    {
+        $stats = $this->eventStatusService->getEventStatistics();
+        
+        return ResponseHelper::success(
+            message: "Event statistics retrieved successfully",
+            data: $stats,
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    /**
+     * Get events by sports type and status
+     */
+    public function getEventsBySportsType(Request $request, $sportsType)
+    {
+        $status = $request->get('status');
+        $perPage = $request->get('per_page', 10);
+        
+        $events = $this->eventStatusService->getEventsBySportsTypeAndStatus($sportsType, $status, $perPage);
+        
+        return ResponseHelper::success(
+            message: "Events for sports type '{$sportsType}' retrieved successfully",
+            data: $events,
+            statusCode: Response::HTTP_OK
+        );
     }
 }
 

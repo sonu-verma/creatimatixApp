@@ -15,7 +15,7 @@ class Turf extends Model
 
     public function sports()
     {
-        return $this->hasMany(Sport::class, 'id_turf','id')->with('sportType');
+        return $this->hasMany(Sport::class, 'id_turf','id');
     }
 
     public function images()
@@ -25,5 +25,40 @@ class Turf extends Model
 
     public function getMinPriceAttribute(){
         return $this->sports()->min('rate_per_hour');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'turf_id', 'id');
+    }
+
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class, 'turf_id', 'id')->where('status', true);
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return $this->approvedReviews()->avg('rating') ?? 0;
+    }
+
+    public function getTotalReviewsAttribute()
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    public function slots()
+    {
+        return $this->hasMany(Slot::class, 'turf_id', 'id');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'turf_id', 'id');
+    }
+
+    public function slotBookings()
+    {
+        return $this->hasMany(SlotBooking::class, 'turf_id', 'id');
     }
 }

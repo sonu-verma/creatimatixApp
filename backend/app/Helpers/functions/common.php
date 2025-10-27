@@ -15,3 +15,21 @@ if(!function_exists('generateSlug')) {
         return $slug;
     }
 }
+
+if(!function_exists('getBookingStatus')) {
+    function getBookingStatus($status) {
+
+        switch($status) {
+            case 0:
+                return 'pending';
+            case 1:
+                return 'confirmed';
+            case 2:
+                return 'cancelled';
+            case 3:
+                return 'completed';
+            default:
+                return 'pending';
+        }
+    }
+}

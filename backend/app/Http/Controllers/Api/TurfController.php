@@ -10,11 +10,50 @@ use Illuminate\Http\Response;
 
 class TurfController extends Controller
 {
-    public function availableTurfs(){
-        $turfs = Turf::where("status", 1)->with(['sports', 'images'])->paginate(10);
+    public function availableTurfs(Request $request){
+
+        $sportType = $request->input('sportType'); // could be id | slug | name
+        $searchTerm = $request->input('city'); // could be id | slug | name
+
+        $turfs = Turf::where("status", 1)->with(['sports.sportType', 'images'])
+        
+        ->when($sportType , function ($q) use ($sportType) {
+            $q->whereHas('sports.sportType', function ($sq) use ($sportType) {
+                if (is_numeric($sportType)) {
+                    $sq->where('id', (int) $sportType);
+                } else {
+                    // match by slug or name loosely
+                    $sq->where(function ($tq) use ($sportType) {
+                        $tq->where('slug', $sportType)
+                           ->orWhere('name', 'like', '%' . $sportType . '%');
+                    });
+                }
+            });
+        })
+        // Free-text search across turf columns you care about
+        ->when($searchTerm, function ($q) use ($searchTerm) {
+            $q->where(function ($sq) use ($searchTerm) {
+                $sq->where('name', 'like', '%' . $searchTerm . '%')
+                   ->orWhere('location', 'like', '%' . $searchTerm . '%')
+                   ->orWhere('address', 'like', '%' . $searchTerm . '%');
+            });
+        })
+        ->withCount([
+            'approvedReviews as total_reviews',
+        ])
+        ->withAvg([
+            'approvedReviews as average_rating' => function ($query) {
+                $query->where('status', true);
+            },
+        ], 'rating')
+
+        // $query = vsprintf(str_replace(array('?'), array('\'%s\''), $turfs->toSql()), $turfs->getBindings());
+        // dd($query);
+        ->paginate(10);
         return response()->json([
             "statusCode" => Response::HTTP_OK,
-            "turfs" => $turfs
+            "turfs" => $turfs,
+            // "query" => $query
         ]);
     }
 
@@ -27,11 +66,43 @@ class TurfController extends Controller
     }
     public function getTurf(Request $request, $slug = null){
         // $slug = $request->get('slug', null);
-        $turf = Turf::where("status", 1)->where('slug', $slug)->with(['sports', 'images'])->first();
+        $turf = Turf::where("status", 1)->where('slug', $slug)->with(['sports.sportType', 'images', 'approvedReviews.user:id,name,profile'])->first();
         
         if(!$turf){
             return ResponseHelper::error(status: 'error', message: 'Turf not available, please contact admin.');
         }
+        
+        // Add review statistics to turf data
+        $turf->rating = [
+            'average' => (int)$turf->average_rating,
+            'count' => $turf->total_reviews
+        ];
+
+        // Get booked slots if date is provided
+        $date = $request->get('date');
+        if ($date) {
+            $bookedSlots = \App\Models\SlotBooking::where('turf_id', $turf->id)
+                ->where('date', $date)
+                ->where('status', 1) // 1 = confirmed
+                ->get()
+                ->map(function($booking) {
+                    return [
+                        'start_slot_value' => $booking->start_slot_value,
+                        'end_slot_value' => $booking->end_slot_value,
+                        'start_time' => $booking->start_time,
+                        'end_time' => $booking->end_time,
+                        'duration' => $booking->duration,
+                        'booking_id' => $booking->id
+                    ];
+                });
+            
+            $turf->booked_slots = $bookedSlots;
+            $turf->booking_stats = [
+                'total_booked' => $bookedSlots->count(),
+                'date' => $date
+            ];
+        }
+        
         return ResponseHelper::success(status: 'success', message: "Data loaded", data: $turf);
      
     }

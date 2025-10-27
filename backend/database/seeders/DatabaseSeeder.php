@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         
         User::factory(10)->create();
-        $this->call([SportTypesTableSeeder::class, TurfSeeder::class, SportSeeder::class]);
+        $this->call([SportTypesTableSeeder::class, TurfSeeder::class, SportSeeder::class, ReviewSeeder::class]);
         $hashedPassword = Hash::make('password');
         User::factory()->create([
             'name' => 'Sonu Verma',
